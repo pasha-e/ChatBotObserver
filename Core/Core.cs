@@ -8,6 +8,7 @@ using MessengerBotObserver.PostLink;
 using MessengerBotObserver.PostLink.PacketAssembling;
 using MessengerBotObserver.PostLink.Protocol;
 using MessengerBotObserver.PostLink.Protocol.Commands;
+using MessengerBotObserver.Telegram;
 
 namespace MessengerBotObserver.Core
 {
@@ -18,6 +19,8 @@ namespace MessengerBotObserver.Core
         private PostLinkConnection _connectionToPostLink;
         private PacketAssembler _assembler;
         private PostLinkMessagesController _postLinkMessagesController;
+        private TelegramMessageController _telegramMessageController;
+
 
         public Core()
         {
@@ -34,14 +37,19 @@ namespace MessengerBotObserver.Core
 
             _postLinkMessagesController.UserMessagesListReceived += _postLinkMessagesController_UserMessagesListReceived;
 
+            _telegramMessageController = new TelegramMessageController(_logger); 
+
             _logger.AddLoggingModule(_connectionToPostLink);
             _logger.AddLoggingModule(_assembler);
             _logger.AddLoggingModule(_postLinkMessagesController);
+            _logger.AddLoggingModule(_telegramMessageController);
 
 
             Task.Factory.StartNew(() =>
             {
                 _connectionToPostLink.Connect();
+
+                _telegramMessageController.Start();
             });
         }
 
